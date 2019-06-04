@@ -1,14 +1,16 @@
+#! /usr/bin/env python
 import serial
 import os
 import time
 import datetime
 import glob
+import MySQLdb
 from time import strftime
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
 
 # Variables for MySQL
-db = MySQLdb.connect(host="localhost", user="root",passwd="password", db="temp_database")
+db = MySQLdb.connect(host="localhost", user="test", passwd="raspberry", db="temp_database")
 cur = db.cursor()
  
 def tempRead():
@@ -18,22 +20,22 @@ def tempRead():
 
 while True:
     temp = tempRead()
-    print temp
+    print(temp)
     datetimeWrite = (time.strftime("%Y-%m-%d ") + time.strftime("%H:%M:%S"))
-    print datetimeWrite
+    print(datetimeWrite)
     sql = ("""INSERT INTO tempLog (datetime,temperature) VALUES (%s,%s)""",(datetimeWrite,temp))
     try:
-        print "Writing to database..."
+        print("Writing to database...")
         # Execute the SQL command
         cur.execute(*sql)
         # Commit your changes in the database
         db.commit()
-        print "Write Complete"
+        print("Write Complete")
  
     except:
         # Rollback in case there is any error
         db.rollback()
-        print "Failed writing to database"
+        print("Failed writing to database")
  
     cur.close()
     db.close()
